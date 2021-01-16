@@ -1,0 +1,11 @@
+{% extends 'mainBread.html' %}
+{% block content %}
+<h1>Choose test!</h1>
+<form action="" method="post">
+	{{ form.hidden_tag() }}
+	{% for test in tests %}
+	<p><input type="radio" name="test" value={{test.id}}>{{test.name}}</p>
+	{% endfor %}
+	<p>{{ form.start() }}</p>
+</form>
+{% endblock %}

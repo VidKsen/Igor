@@ -1,0 +1,55 @@
+{% extends "mainBread.html" %}
+
+{% block content %}
+    <h1>New question</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.test.label }}<br>
+            {{ form.test(size=32) }}<br>
+            {% for error in form.test.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.body.label }}<br>
+            {{ form.body(size=32) }}<br>
+            {% for error in form.body.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.answer_name1.label }}<br>
+            {{ form.answer_name1(size=32) }}<br>
+            {% for error in form.answer_name1.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.value_answer1() }} {{ form.value_answer1.label }}</p>
+        <p>
+            {{ form.answer_name2.label }}<br>
+            {{ form.answer_name2(size=32) }}<br>
+            {% for error in form.answer_name2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.value_answer2() }} {{ form.value_answer2.label }}</p>
+        <p>
+            {{ form.answer_name3.label }}<br>
+            {{ form.answer_name3(size=32) }}<br>
+            {% for error in form.answer_name3.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.value_answer3() }} {{ form.value_answer3.label }}</p>
+        <p>
+            {{ form.answer_name4.label }}<br>
+            {{ form.answer_name4(size=32) }}<br>
+            {% for error in form.answer_name4.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.value_answer4() }} {{ form.value_answer4.label }}</p>
+        <p>{{ form.add_question() }}</p>
+    </form>
+{% endblock %}
