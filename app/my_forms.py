@@ -43,6 +43,8 @@ class CreateTest(FlaskForm):
 
 class AddQuestion(FlaskForm):
     test = StringField('Name of test', validators=[DataRequired()])
+    type = RadioField('Type of test', choices=[(0, 'Один правильный вариант ответа'),
+        (2, 'Несколько правильных вариантов ответа')])
     body = StringField('Text of question', validators=[DataRequired()])
     answer_name1 = StringField('First answer', validators=[DataRequired()])
     value_answer1 = BooleanField('Right answer')
@@ -60,15 +62,16 @@ class AddQuestion(FlaskForm):
             raise ValidationError('That test is not exist.')
 
 class GoTest(FlaskForm):
-    i = 0
-    list_tests = [('','')]*len(Test.query.all())
-    for test in Test.query.all():
-        list_tests[i] = (test.id, test.name)
-        i = i + 1
-    tests = RadioField('test', choices=list_tests)
+    tests = RadioField('test', choices=[])
     start = SubmitField('Start Test')
 
-class AnswerForms(FlaskForm):
+class AnswerForms_0(FlaskForm):
+    type = 0
+    answers = RadioField('answers', choices=[])
+    SubmitAnswer = SubmitField('Next')
+
+class AnswerForms_1(FlaskForm):
+    type = 1
     Answer1 = BooleanField()
     Answer2 = BooleanField()
     Answer3 = BooleanField()

@@ -4,7 +4,7 @@ from app.my_forms import LoginForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 from app import db, models
-from app.my_forms import RegistrationForm, CreateTest, AddQuestion, GoTest, AnswerForms
+from app.my_forms import RegistrationForm, CreateTest, AddQuestion, GoTest, AnswerForms_0, AnswerForms_1
 from app.models import User, Test, Question, Answers, UserAnswers, UserResults
 
 @app.route('/')
@@ -13,8 +13,10 @@ from app.models import User, Test, Question, Answers, UserAnswers, UserResults
 def index():
     tests = models.Test.query.all()
     results = models.UserResults.query.filter_by(u_res = current_user.id).all()
-    print(results)
     form = GoTest()
+    for test in Test.query.all():
+        form.tests.choices.append((test.id, test.name)) 
+
     if form.validate_on_submit():
         session['number'] = 0
         session['test'] = form.tests.data
@@ -78,7 +80,7 @@ def addquestion():
     form = AddQuestion()
     if form.validate_on_submit():
         t_id = Test.query.filter_by(name=form.test.data).first().id
-        question = Question(body=form.body.data, test=t_id)
+        question = Question(body=form.body.data, test=t_id, type=form.type.data)
         db.session.add(question)
         db.session.commit()
         q_id = question.id
@@ -95,77 +97,97 @@ def addquestion():
         return redirect(url_for('addquestion'))
     return render_template('addquestion.html', title='Add Question', form=form)
 
-@app.route('/testlist')
-def testlist():
-    t_id = 1
-    testname = models.Test.query.filter_by(id = t_id).first().name
-    questions = models.Question.query.filter_by(test = t_id)
-    return render_template('testlist.html', title='Just do it, motherfuker!', questions=questions, testname=testname)
-
 @app.route('/answerpage', methods=['GET', 'POST'])
 @login_required
 def answerpage():
-    form = AnswerForms()
     i = session.get('number')
     L = session.get('length')
-    if form.validate_on_submit():
-        session['number'] = session.get('number') + 1
-        questions = models.Question.query.filter_by(test=session.get('test')).all()
-        question = questions[i]
-        answers = models.Answers.query.filter_by(quest=question.id).all()
-        for a in UserAnswers.query.filter_by(question = question.id).all():
-            db.session.delete(a)
-            db.session.commit()
-        if (form.Answer1.data == 1):
-            u_answer = UserAnswers(user = current_user.id,
-                question = question.id, answers = answers[0].id)
-            db.session.add(u_answer)
-            db.session.commit()
-        if (form.Answer2.data == 1):
-            u_answer = UserAnswers(user = current_user.id,
-                question = question.id, answers = answers[1].id)
-            db.session.add(u_answer)
-            db.session.commit()
-        if (form.Answer3.data == 1):
-            u_answer = UserAnswers(user = current_user.id,
-                question = question.id, answers = answers[2].id)
-            db.session.add(u_answer)
-            db.session.commit()
-        if (form.Answer4.data == 1):
-            u_answer = UserAnswers(user = current_user.id,
-                question = question.id, answers = answers[3].id)
-            db.session.add(u_answer)
-            db.session.commit()
-        return redirect(url_for('answerpage'))
+    
     if i != L:
         questions = models.Question.query.filter_by(test=session.get('test')).all()
         question = questions[i]
         answers = models.Answers.query.filter_by(quest=question.id).all()
+        
+        if (question.type == 0):
+            form = AnswerForms_0()
+            for a in answers:
+                form.answers.choices.append((a.id, a.body))
+        else:
+            form = AnswerForms_1()
+
+        if form.validate_on_submit():
+            session['number'] = session.get('number') + 1
+            questions = models.Question.query.filter_by(test=session.get('test')).all()
+            question = questions[i]
+            answers = models.Answers.query.filter_by(quest=question.id).all()
+
+            for a in UserAnswers.query.filter_by(question = question.id).all():
+                db.session.delete(a)
+                db.session.commit()
+
+            if (form.type == 0):
+                u_answer = UserAnswers(user = current_user.id,
+                    question = question.id, answers = form.answers.data)
+                db.session.add(u_answer)
+                db.session.commit()
+            else:
+                if (form.Answer1.data == 1):
+                    u_answer = UserAnswers(user = current_user.id,
+                        question = question.id, answers = answers[0].id)
+                    db.session.add(u_answer)
+                    db.session.commit()
+                if (form.Answer2.data == 1):
+                    u_answer = UserAnswers(user = current_user.id,
+                        question = question.id, answers = answers[1].id)
+                    db.session.add(u_answer)
+                    db.session.commit()
+                if (form.Answer3.data == 1):
+                    u_answer = UserAnswers(user = current_user.id,
+                        question = question.id, answers = answers[2].id)
+                    db.session.add(u_answer)
+                    db.session.commit()
+                if (form.Answer4.data == 1):
+                    u_answer = UserAnswers(user = current_user.id,
+                        question = question.id, answers = answers[3].id)
+                    db.session.add(u_answer)
+                    db.session.commit()
+            return redirect(url_for('answerpage'))
+
         return render_template('answerpage.html', title='Question',
             form=form, questions=questions, question=question,
             answers=answers, i=i, L=L)
+
     else:
         sum = 0
         sum_u = 0
         sum_r = 0
         questions = models.Question.query.filter_by(test=session.get('test')).all()
         for q in questions:
-            answers = models.Answers.query.filter_by(quest=q.id).all()
-            user_answers = models.UserAnswers.query.filter_by(user=current_user.id,
-                        question = q.id).all()
-            sum_u += len(user_answers)
-            for a in answers:
-                if (a.value == 1):
-                    sum += 1
-                    user_a = models.UserAnswers.query.filter_by(user=current_user.id,
-                        answers = a.id).first()
-                    if (user_a != None):
-                        sum_r += 1
+            if (q.type == 1):
+                answers = models.Answers.query.filter_by(quest=q.id).all()
+                user_answers = models.UserAnswers.query.filter_by(user=current_user.id,
+                            question = q.id).all()
+                sum_u += len(user_answers)
+                for a in answers:
+                    if (a.value == 1):
+                        sum += 1
+                        user_a = models.UserAnswers.query.filter_by(user=current_user.id,
+                            answers = a.id).first()
+                        if (user_a != None):
+                            sum_r += 1
+            else:
+                right_answer = models.Answers.query.filter_by(quest=q.id, value=1).first()
+                user_a = models.UserAnswers.query.filter_by(user=current_user.id,
+                            answers = right_answer.id).first()
+                sum += 1
+                sum_u += 1
+                if (user_a != None):
+                    sum_r += 1
+
         result = (2*sum_r - sum_u)
         if (result < 0):
             result = 0
         ur = models.UserResults.query.filter_by(t_res = questions[0].test).first()
-        print(ur)
         if ur != None:
             db.session.delete(ur)
             db.session.commit()

@@ -18,6 +18,12 @@
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
+            {% for field in form.type %}
+            <p>
+                {{ field }}
+                {{ field.label }}
+            </p>
+            {% endfor %}
         <p>
             {{ form.answer_name1.label }}<br>
             {{ form.answer_name1(size=32) }}<br>

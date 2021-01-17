@@ -10,10 +10,19 @@
 <p>{{ question.body }}</p>
 <form action="" method="post">
 	{{ form.hidden_tag() }}
+	{% if form.type == 1 %}
 	<p>{{ form.Answer1 }} {{ answers[0].body }}</p>
 	<p>{{ form.Answer2 }} {{ answers[1].body }}</p>
 	<p>{{ form.Answer3 }} {{ answers[2].body }}</p>
 	<p>{{ form.Answer4 }} {{ answers[3].body }}</p>
+    {% else %}
+    {% for field in form.answers %}
+	<p>
+		{{ field }}
+		{{ field.label }}
+	</p>
+	{% endfor %}
+    {% endif %}
     <p>{{ form.SubmitAnswer() }}</p>
 </form>
 {% endif %}

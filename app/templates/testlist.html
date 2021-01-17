@@ -1,0 +1,12 @@
+{% extends "mainBread.html" %}
+{% block content %}
+    <h1>Test: {{testname}}</h1><br>
+    {%for q in questions%}
+    <h2>Question {{q.id}}: {{q.body}}</h2><br>
+        <hr><br>
+        {%for a in q.answers%}
+        <p>{{a.body}}</p><hr>
+        {%endfor%}
+        <br>
+    {%endfor%}
+{% endblock %}
